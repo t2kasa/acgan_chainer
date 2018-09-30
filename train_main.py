@@ -1,11 +1,13 @@
+from argparse import ArgumentParser
+
 import chainer
 from chainer.optimizers import Adam
-from models import Generator, Discriminator
+from chainer.training import extensions
+
 from acgan_updater import ACGANUpdater
 from cifar10_dataset import Cifar10Dataset
-from chainer.training import extensions
 from extensions import sample_generate
-from argparse import ArgumentParser
+from models import Generator, Discriminator
 from noise_generator import NoiseGenerator
 
 
@@ -63,7 +65,7 @@ def main():
     log_keys = ["iteration", "loss_dis", "loss_gen"]
     trainer.extend(extensions.LogReport(log_keys, trigger=display_interval))
     trainer.extend(extensions.PrintReport(log_keys), trigger=display_interval)
-    trainer.extend(sample_generate(gen), trigger=sample_interval)
+    trainer.extend(sample_generate(gen, noise_gen), trigger=sample_interval)
     trainer.extend(extensions.PlotReport(
         ['loss_gen', 'loss_dis'], 'iteration', file_name='loss.png'))
 

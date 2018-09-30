@@ -2,25 +2,25 @@ import os
 
 import chainer
 import numpy as np
-
-from utils import make_fake_noise, to_one_hot
 from PIL import Image
 
 
-def sample_generate(gen, rows=10, cols=10, seed=0):
+def sample_generate(gen, noise_gen, rows=10, cols=10, seed=0):
     @chainer.training.make_extension()
     def make_image(trainer):
-        np.random.seed(seed)
         n_imgs = rows * cols
-        xp = gen.xp
+        xp = noise_gen.xp
 
-        noise_size = 100
-        n_labels = 10
-
-        noise = make_fake_noise(xp, n_imgs, noise_size)
-        c_fake = np.repeat(np.arange(n_labels), rows)
-        c_fake_one_hot = to_one_hot(xp, n_labels, c_fake)
+        # set seed to generate same noise array
+        xp.random.seed(seed)
+        # generate noise
+        noise = noise_gen.generate_noise(n_imgs)
+        c_fake = xp.repeat(xp.arange(noise_gen.n_labels), rows)
+        c_fake_one_hot = noise_gen.to_one_hot(c_fake)
         z = xp.concatenate([noise, c_fake_one_hot], axis=1)
+
+        # reset seed
+        xp.random.seed()
 
         with chainer.using_config('train', False), chainer.using_config(
                 'enable_backprop', False):
