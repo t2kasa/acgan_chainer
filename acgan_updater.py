@@ -1,17 +1,16 @@
 import chainer
 import chainer.functions as F
 
-from utils import make_fake_noise, make_fake_label, to_one_hot
+from noise_generator import NoiseGenerator
 
 
 class ACGANUpdater(chainer.training.StandardUpdater):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, noise_gen, *args, **kwargs):
+        self.noise_gen = noise_gen
         self.gen, self.dis = kwargs.pop('models')
         super(ACGANUpdater, self).__init__(*args, **kwargs)
 
     def update_core(self):
-        n_labels = 10
-        n_noise = 100
         gen_optimizer = self.get_optimizer('opt_gen')
         dis_optimizer = self.get_optimizer('opt_dis')
         xp = self.gen.xp
@@ -22,10 +21,10 @@ class ACGANUpdater(chainer.training.StandardUpdater):
         c_real_true = chainer.as_variable(c_real_true)
         batch_size = len(batch)
 
-        noise = make_fake_noise(xp, batch_size, n_noise)
-        c_fake_true = make_fake_label(xp, batch_size, n_labels)
-        c_fake_true_one_hot = to_one_hot(xp, n_labels, c_fake_true)
-
+        # generate noise
+        noise = self.noise_gen.generate_noise(batch_size)
+        c_fake_true = self.noise_gen.generate_label(batch_size)
+        c_fake_true_one_hot = self.noise_gen.to_one_hot(c_fake_true)
         z = chainer.as_variable(
             xp.concatenate([noise, c_fake_true_one_hot], axis=1))
 
@@ -35,6 +34,7 @@ class ACGANUpdater(chainer.training.StandardUpdater):
         x_fake = self.gen(z)
         d_fake, c_fake_pred = self.dis(x_fake)
 
+        # compute loss
         loss_dis = compute_loss_dis(d_real, d_fake)
         loss_dis += F.softmax_cross_entropy(c_real_pred, c_real_true)
         loss_dis += F.softmax_cross_entropy(c_fake_pred, c_fake_true)

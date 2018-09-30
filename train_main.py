@@ -6,6 +6,7 @@ from cifar10_dataset import Cifar10Dataset
 from chainer.training import extensions
 from extensions import sample_generate
 from argparse import ArgumentParser
+from noise_generator import NoiseGenerator
 
 
 def parse_args():
@@ -43,7 +44,8 @@ def main():
         gen.to_gpu()
         dis.to_gpu()
 
-    updater = ACGANUpdater(**updater_args)
+    noise_gen = NoiseGenerator(gen.xp, n_labels=args.n_labels)
+    updater = ACGANUpdater(noise_gen, **updater_args)
     trainer = chainer.training.Trainer(updater, (args.max_iter, 'iteration'),
                                        out=args.out)
 
