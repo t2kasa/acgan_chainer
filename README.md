@@ -2,7 +2,7 @@
 
 [ACGAN](http://proceedings.mlr.press/v70/odena17a.html) implementation with [Chainer](https://github.com/chainer/chainer).
 
-My implementation supports only for CIAFR-10.
+My implementation supports only for CIFAR-10.
 The architecture is different from the listed architecture of the original paper.
 
 ## Result
