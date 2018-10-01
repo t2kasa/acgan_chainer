@@ -30,7 +30,8 @@ python train_main.py
 
 ## References
 
-* [Augustus Odena, Christopher Olah, Jonathon Shlens ; Proceedings of the 34th International Conference on Machine Learning, PMLR 70:2642-2651, 2017.
+* [Augustus Odena, Christopher Olah, Jonathon Shlens; Conditional Image Synthesis with Auxiliary Classifier GANs
+. Proceedings of the 34th International Conference on Machine Learning, PMLR 70:2642-2651, 2017.
 ](http://proceedings.mlr.press/v70/odena17a.html)
 * https://github.com/gitlimlab/ACGAN-PyTorch
 * https://github.com/Aixile/chainer-gan-experiments
